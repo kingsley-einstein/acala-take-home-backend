@@ -37,27 +37,34 @@ app.set("view engine", "handlebars");
 app.set("views", path.join(__dirname, "views"));
 
 app
-  .route("*")
-  .get(
-    (req, res, next) => {
-      if (!sessionRecords[req.session.id]) return res.render("password");
-      next();
-    },
-    (req, res) => res.send("Hello")
-  )
-  .post(
-    (req, res, next) => {
-      const { password } = req.body;
+  .route("/")
+  .get((req, res) => {
+    if (!sessionRecords[req.session.id]) {
+      return res.render("password");
+    } else {
+      app.use(express.static(path.join(__dirname, "../client")));
+      return res.redirect("/home/");
+    }
+  })
+  .post((req, res) => {
+    const { password } = req.body;
 
-      if (!bcrypt.compareSync(password, process.env.PW)) {
-        return res.render("password", {
-          message: "Incorrect Password"
-        });
-      }
+    if (!bcrypt.compareSync(password, process.env.PW)) {
+      return res.render("password", {
+        message: "Incorrect Password"
+      });
+    } else {
       sessionRecords[req.session.id] = true;
-      next();
-    },
-    (req, res) => res.send("Hello")
-  );
+      app.use(express.static(path.join(__dirname, "../client")));
+      return res.redirect("/home/");
+    }
+  });
+
+app.get("/home/*", (req, res) => {
+  if (!sessionRecords[req.session.id]) {
+    return res.redirect("/");
+  }
+  return res.sendFile(path.join(__dirname, "../client/index.html"));
+});
 
 app.listen(1259, () => console.log("App running on port 1259"));
