@@ -10,4 +10,4 @@
 
 * Add another key **SECRET** with a random string value
 
-*Run `npm start` to start server on port **1259**. Navigate to the root url to display static content
+* Run `npm start` to start server on port **1259**. Navigate to the root url to display static content
